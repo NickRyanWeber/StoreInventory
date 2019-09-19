@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using storeinventory;
 using StoreInventory.Models;
 
@@ -50,20 +51,32 @@ namespace StoreInventory.Controllers
     public ActionResult<Item> UpdateItem([FromBody]Item updatedInfo, int id)
     {
       var updateItem = context.Items.FirstOrDefault(item => item.Id == id);
+      if (id != updatedInfo.Id)
+      {
+        return BadRequest();
+      }
+
       if (updateItem == null)
       {
         return NotFound();
       }
       else
       {
-        updateItem.SKU = updatedInfo.SKU;
-        updateItem.Name = updatedInfo.Name;
-        updateItem.Description = updatedInfo.Description;
-        updateItem.NumberInStock = updatedInfo.NumberInStock;
-        updateItem.Price = updatedInfo.Price;
-        updateItem.DateOrdered = updatedInfo.DateOrdered;
+        // updateItem.SKU = updatedInfo.SKU;
+        // updateItem.Name = updatedInfo.Name;
+        // updateItem.Description = updatedInfo.Description;
+        // updateItem.NumberInStock = updatedInfo.NumberInStock;
+        // updateItem.Price = updatedInfo.Price;
+        // updateItem.DateOrdered = updatedInfo.DateOrdered;
+        // ^^^ valid way of doing it, but not scaleable
+
+        // context.Items.Update(updatedInfo);
+        // ^^^ Checks EVERY item and its children...can cause performance issues
+
+        context.Entry(updatedInfo).State = EntityState.Modified;
         context.SaveChanges();
         return Ok(updateItem);
+        // return Ok(updatedInfo);
       }
 
     }
@@ -78,7 +91,7 @@ namespace StoreInventory.Controllers
       }
       else
       {
-        context.Remove(deletedItem);
+        context.Items.Remove(deletedItem);
         context.SaveChanges();
         return Ok(deletedItem);
       }

@@ -84,6 +84,32 @@ namespace StoreInventory.Controllers
       }
     }
 
+    [HttpGet("out-of-stock")]
+    public ActionResult GetOOSItems()
+    {
+      var outOfStockItems = context.Items.Where(i => i.NumberInStock == 0);
+      if (outOfStockItems == null)
+      {
+        return NotFound();
+      }
+      else
+      {
+        return Ok(outOfStockItems);
+      }
+    }
 
+    [HttpGet("sku/{SKU}")]
+    public ActionResult GetSKUItem(int sku)
+    {
+      var SKUItem = context.Items.FirstOrDefault(i => i.SKU == sku);
+      if (SKUItem == null)
+      {
+        return NotFound();
+      }
+      else
+      {
+        return Ok(SKUItem);
+      }
+    }
   }
 }
